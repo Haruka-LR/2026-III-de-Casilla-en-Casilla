@@ -77,13 +77,26 @@ WSGI_APPLICATION = 'De_Casilla_en_Casilla.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+if os.environ.get('DJANGO_USE_SQLITE', 'true').strip().lower() in {
+    '1',
+    'true',
+    'yes',
+    'on',
+}:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
 
 
 # Password validation
@@ -108,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE =  'es-mx'
 
 TIME_ZONE = 'UTC'
 
@@ -123,8 +136,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+
 
 MAILERS = {
     'default': {
@@ -132,3 +144,6 @@ MAILERS = {
     },
 }
 AUTH_USER_MODEL = 'usuarios.Usuario'
+
+LOGIN_REDIRECT_URL = 'lista_usuarios'
+LOGOUT_REDIRECT_URL = 'sesion_cerrada'

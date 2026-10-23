@@ -1,6 +1,39 @@
 from django import forms
 from django.contrib.auth.models import Permission
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.contenttypes.models import ContentType
+
+from .models import Usuario
+
+
+class UsuarioCreateForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = Usuario
+        fields = ('username', 'email', 'rol', 'telefono')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+        self.fields['username'].widget.attrs['placeholder'] = 'Nombre'
+        self.fields['username'].help_text = ''
+        self.fields['email'].widget.attrs['placeholder'] = 'Correo'
+        self.fields['telefono'].widget.attrs['placeholder'] = 'Teléfono'
+        self.fields['password1'].widget.attrs['placeholder'] = 'Contraseña'
+        self.fields['password2'].widget.attrs['placeholder'] = 'Confirmar contraseña'
+
+
+class UsuarioUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ('username', 'email', 'rol', 'telefono')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'rol': forms.Select(attrs={'class': 'form-select'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
 
 class PermisoForm(forms.ModelForm):
     class Meta:
@@ -29,7 +62,7 @@ class PermisoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['content_type'].queryset = ContentType.objects.all()
         
-        # Mapeo para traducir los modelos base de Django al español
+      
         traducciones = {
             'user': 'Módulo de Usuario',
             'usuario': 'Módulo de Usuarios',
@@ -39,8 +72,7 @@ class PermisoForm(forms.ModelForm):
             'logentry': 'Módulo de Administración',
             'contenttype': 'Tipos de Contenido',
         }
-        
-        # Muestra el nombre traducido si existe en el diccionario o lo formatea automáticamente
+
         self.fields['content_type'].label_from_instance = lambda obj: traducciones.get(
             obj.model.lower(), 
             f"Módulo de {obj.model.capitalize()}"
