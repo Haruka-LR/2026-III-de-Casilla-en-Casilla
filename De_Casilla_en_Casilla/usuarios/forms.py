@@ -1,6 +1,6 @@
 from django import forms
-from django.contrib.auth.models import Permission
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
 from .models import Usuario
@@ -46,11 +46,11 @@ class PermisoForm(forms.ModelForm):
         }
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'form-control', 
+                'class': 'form-control',
                 'placeholder': ''
             }),
             'codename': forms.TextInput(attrs={
-                'class': 'form-control', 
+                'class': 'form-control',
                 'placeholder': ''
             }),
             'content_type': forms.Select(attrs={
@@ -61,8 +61,7 @@ class PermisoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['content_type'].queryset = ContentType.objects.all()
-        
-      
+
         traducciones = {
             'user': 'Módulo de Usuario',
             'usuario': 'Módulo de Usuarios',
@@ -74,6 +73,6 @@ class PermisoForm(forms.ModelForm):
         }
 
         self.fields['content_type'].label_from_instance = lambda obj: traducciones.get(
-            obj.model.lower(), 
+            obj.model.lower(),
             f"Módulo de {obj.model.capitalize()}"
         )
