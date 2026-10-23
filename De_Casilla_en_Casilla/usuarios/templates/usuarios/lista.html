@@ -1,0 +1,28 @@
+<h1>Lista de Permisos</h1>
+<a href="{% url 'permiso_create' %}">Crear Nuevo Permiso</a>
+<ul>
+    {% for permiso in permisos %}
+        <li>
+            {{ permiso.name }} ({{ permiso.codename }})
+            <a href="{% url 'permiso_update' permiso.pk %}">Editar</a>
+            <a href="{% url 'permiso_delete' permiso.pk %}">Eliminar</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<h1>{% if object %}Editar{% else %}Crear{% endif %} Permiso</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar</button>
+</form>
+<a href="{% url 'permisos_list' %}">Cancelar</a>
+
+<h1>Confirmar Eliminación</h1>
+<p>¿Estás seguro de que deseas eliminar el permiso "{{ object.name }}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Sí, eliminar</button>
+</form>
+<a href="{% url 'permisos_list' %}">Cancelar</a>
+
