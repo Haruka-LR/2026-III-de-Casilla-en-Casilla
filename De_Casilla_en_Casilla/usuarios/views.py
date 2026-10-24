@@ -1,8 +1,9 @@
-from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .models import Usuario
 from django.contrib.auth.models import Permission
-from .forms import PermisoForm # Asegúrate de haber creado este formulario en forms.py
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+
+from .forms import PermisoForm, UsuarioCreateForm, UsuarioUpdateForm
+from .models import Usuario
 
 
 class UsuarioListView(ListView):
@@ -10,17 +11,20 @@ class UsuarioListView(ListView):
     template_name = 'usuarios/lista.html'
     context_object_name = 'usuarios'
 
+
 class UsuarioCreateView(CreateView):
     model = Usuario
     template_name = 'usuarios/formulario.html'
-    fields = ['username', 'email', 'rol', 'telefono']
+    form_class = UsuarioCreateForm
     success_url = reverse_lazy('lista_usuarios')
+
 
 class UsuarioUpdateView(UpdateView):
     model = Usuario
     template_name = 'usuarios/formulario.html'
-    fields = ['username', 'email', 'rol', 'telefono']
+    form_class = UsuarioUpdateForm
     success_url = reverse_lazy('lista_usuarios')
+
 
 class UsuarioDeleteView(DeleteView):
     model = Usuario
@@ -30,22 +34,35 @@ class UsuarioDeleteView(DeleteView):
 
 class PermisoListView(ListView):
     model = Permission
-    template_name = 'usuarios/permiso_list.html'
+    template_name = 'permisos/lista.html'
     context_object_name = 'permisos'
+
+    def get_queryset(self):
+        return Permission.objects.exclude(
+            content_type__app_label__in=['admin', 'auth', 'contenttypes', 'sessions']
+        ).exclude(
+            codename__in=[
+                'add_user', 'change_user', 'delete_user', 'view_user',
+                'add_usuario', 'change_usuario', 'delete_usuario', 'view_usuario',
+            ]
+        )
+
 
 class PermisoCreateView(CreateView):
     model = Permission
-    form_class = PermisoForm  # Aquí usamos el ModelForm
-    template_name = 'usuarios/permiso_form.html'
-    success_url = reverse_lazy('lista_permisos') # Configuraremos este nombre en urls.py
+    form_class = PermisoForm
+    template_name = 'permisos/formulario.html'
+    success_url = reverse_lazy('listar_permisos')
+
 
 class PermisoUpdateView(UpdateView):
     model = Permission
-    form_class = PermisoForm 
-    template_name = 'usuarios/permiso_form.html'
-    success_url = reverse_lazy('lista_permisos')
+    form_class = PermisoForm
+    template_name = 'permisos/formulario.html'
+    success_url = reverse_lazy('listar_permisos')
+
 
 class PermisoDeleteView(DeleteView):
     model = Permission
-    template_name = 'usuarios/permiso_confirm_delete.html'
-    success_url = reverse_lazy('lista_permisos')
+    template_name = 'permisos/confirmar_borrado.html'
+    success_url = reverse_lazy('listar_permisos')

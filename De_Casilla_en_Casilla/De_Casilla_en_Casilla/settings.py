@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE =  'es-mx'
 
 TIME_ZONE = 'UTC'
 
@@ -123,8 +123,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+
 
 MAILERS = {
     'default': {
@@ -132,3 +131,6 @@ MAILERS = {
     },
 }
 AUTH_USER_MODEL = 'usuarios.Usuario'
+
+LOGIN_REDIRECT_URL = 'lista_usuarios'
+LOGOUT_REDIRECT_URL = 'sesion_cerrada'
