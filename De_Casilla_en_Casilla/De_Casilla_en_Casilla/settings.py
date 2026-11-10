@@ -118,5 +118,5 @@ MAILERS = {
 }
 AUTH_USER_MODEL = 'usuarios.Usuario'
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'inicio'
-LOGOUT_REDIRECT_URL = 'inicio'
+LOGIN_REDIRECT_URL = 'panel_usuarios_lista'
+LOGOUT_REDIRECT_URL = 'login'               

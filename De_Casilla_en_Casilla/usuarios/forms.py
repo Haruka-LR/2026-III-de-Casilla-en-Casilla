@@ -5,35 +5,53 @@ from django.contrib.contenttypes.models import ContentType
 
 from .models import Usuario
 
+def aplicar_estilos_bootstrap(form):
+    """Aplica las clases de Bootstrap a todos los campos del formulario automáticamente"""
+    for field_name, field in form.fields.items():
+        if isinstance(field.widget, forms.Select):
+            field.widget.attrs['class'] = 'form-select'
+        elif isinstance(field.widget, forms.CheckboxInput):
+            field.widget.attrs['class'] = 'form-check-input'
+        else:
+            field.widget.attrs['class'] = 'form-control'
 
-class UsuarioCreateForm(UserCreationForm):
+class RegistroPublicoForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = Usuario
-        fields = ('username', 'email', 'rol', 'telefono')
+        fields = ('username', 'email', 'telefono')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs['class'] = (
-                'form-select' if isinstance(field.widget, forms.Select) else 'form-control'
-            )
-        self.fields['username'].widget.attrs['placeholder'] = 'Nombre'
-        self.fields['username'].help_text = ''
-        self.fields['email'].widget.attrs['placeholder'] = 'Correo'
+        aplicar_estilos_bootstrap(self)
+        self.fields['username'].widget.attrs['placeholder'] = 'Nombre de usuario'
+        self.fields['username'].help_text = '' # Quitamos el texto de ayuda largo de Django
+        self.fields['email'].widget.attrs['placeholder'] = 'Correo electrónico'
         self.fields['telefono'].widget.attrs['placeholder'] = 'Teléfono'
         self.fields['password1'].widget.attrs['placeholder'] = 'Contraseña'
         self.fields['password2'].widget.attrs['placeholder'] = 'Confirmar contraseña'
 
-class UsuarioUpdateForm(forms.ModelForm):
-    class Meta:
+class UsuarioAdminCreationForm(UserCreationForm):
+    """Formulario para que el Admin CREE un usuario desde cero en el panel"""
+    class Meta(UserCreationForm.Meta):
         model = Usuario
         fields = ('username', 'email', 'rol', 'telefono')
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'rol': forms.Select(attrs={'class': 'form-select'}),
-            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        aplicar_estilos_bootstrap(self)
+        self.fields['username'].help_text = ''
+
+
+class UsuarioUpdateForm(forms.ModelForm):
+    """Formulario para que el Admin EDITE un usuario existente"""
+    class Meta:
+        model = Usuario
+
+        fields = ('username', 'email', 'rol', 'telefono', 'is_active')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        aplicar_estilos_bootstrap(self) 
+
 
 class PermisoForm(forms.ModelForm):
     class Meta:
@@ -44,22 +62,11 @@ class PermisoForm(forms.ModelForm):
             'codename': 'Código (Codename)',
             'content_type': 'Módulo Asociado',
         }
-        widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': ''
-            }),
-            'codename': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': ''
-            }),
-            'content_type': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        aplicar_estilos_bootstrap(self)
+        
         self.fields['content_type'].queryset = ContentType.objects.all()
 
         traducciones = {

@@ -1,16 +1,21 @@
+# usuarios/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class Usuario(AbstractUser):
-    # ROLES DISPONIBKLES
-    ROLES = (
-        ('admin', 'Administrador'),
-        ('maestro', 'Maestro'),
-        ('usuario', 'Usuario'),
-    )
+    ADMINISTRADOR = 'admin'
+    SOLO_LECTURA = 'lectura'
+    CREADOR_USUARIOS = 'creador'
     
-    rol = models.CharField(max_length=20, choices=ROLES, default='usuario')
-    telefono = models.CharField(max_length=15, blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.username} - {self.rol}"
+    ROLES_CHOICES = [
+        (ADMINISTRADOR, 'Administrador'),
+        (SOLO_LECTURA, 'Solo Lectura'),
+        (CREADOR_USUARIOS, 'Creador de Usuarios'),
+    ]
+    
+    rol = models.CharField(
+        max_length=15, 
+        choices=ROLES_CHOICES, 
+        default=SOLO_LECTURA
+    )
+    telefono = models.CharField(max_length=20, null=True, blank=True)
