@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView
 from django.contrib.auth.views import LoginView
@@ -8,36 +9,34 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 from .models import Usuario
-from .forms import RegistroPublicoForm, UsuarioAdminCreationForm
+from .forms import RegistroPublicoForm, UsuarioAdminCreationForm, UsuarioUpdateForm
 
 
 class VerPanelMixin(UserPassesTestMixin):
-    """ Permite ver la lista a Administrador, Solo Lectura y Creador """
     def test_func(self):
-        user = self.request.user
-        roles_permitidos = [Usuario.ADMINISTRADOR, Usuario.SOLO_LECTURA, Usuario.CREADOR_USUARIOS]
-        return user.is_authenticated and (user.rol in roles_permitidos or user.is_superuser)
+        return self.request.user.is_authenticated and self.request.user.puede_ver_panel
 
     def handle_no_permission(self):
         return render(self.request, 'usuarios/403.html', status=403)
 
 
 class CrearUsuarioMixin(UserPassesTestMixin):
-    """ Permite acceder a crear usuarios a Administrador y Creador """
     def test_func(self):
-        user = self.request.user
-        roles_permitidos = [Usuario.ADMINISTRADOR, Usuario.CREADOR_USUARIOS]
-        return user.is_authenticated and (user.rol in roles_permitidos or user.is_superuser)
+        return (
+            self.request.user.is_authenticated
+            and self.request.user.puede_crear_usuarios
+        )
 
     def handle_no_permission(self):
         return render(self.request, 'usuarios/403.html', status=403)
 
 
 class SoloAdminMixin(UserPassesTestMixin):
-    """ Exclusivo para el Administrador Mayor (Editar y Borrar) """
     def test_func(self):
         user = self.request.user
-        return user.is_authenticated and (user.rol == Usuario.ADMINISTRADOR or user.is_superuser)
+        return user.is_authenticated and getattr(
+            user, self.panel_permission_attribute, False
+        )
 
     def handle_no_permission(self):
         return render(self.request, 'usuarios/403.html', status=403)
@@ -56,25 +55,53 @@ class PanelUsuariosListView(VerPanelMixin, ListView):
     template_name = 'usuarios/panel/lista_usuarios.html'
     context_object_name = 'usuarios'
 
+
+class PanelInicioView(LoginRequiredMixin, TemplateView):
+    def get(self, request):
+        if request.user.puede_ver_panel:
+            return redirect('panel_usuarios_lista')
+        if request.user.puede_crear_usuarios:
+            return redirect('panel_usuario_crear')
+        return render(request, 'usuarios/403.html', status=403)
+
+
 class PanelUsuarioCreateView(CrearUsuarioMixin, CreateView):
     model = Usuario
     template_name = 'usuarios/panel/formulario_usuario.html'
-    success_url = reverse_lazy('panel_usuarios_lista')
+
+    def get_success_url(self):
+        if self.request.user.puede_ver_panel:
+            return reverse_lazy('panel_usuarios_lista')
+        return reverse_lazy('panel_usuario_crear')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Usuario creado correctamente.')
+        return response
+
     def get_form_class(self):
         user = self.request.user
-        if user.rol == Usuario.ADMINISTRADOR or user.is_superuser:
-
+        if user.puede_asignar_permisos_usuarios:
             return UsuarioAdminCreationForm
         return RegistroPublicoForm
 
 class PanelUsuarioUpdateView(SoloAdminMixin, UpdateView):
     model = Usuario
-    fields = ['username', 'email', 'first_name', 'last_name', 'rol', 'is_active']
+    panel_permission_attribute = "puede_editar_usuarios"
+    form_class = UsuarioUpdateForm
     template_name = 'usuarios/panel/formulario_usuario.html'
     success_url = reverse_lazy('panel_usuarios_lista')
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if not self.request.user.puede_asignar_permisos_usuarios:
+            form.fields.pop('user_permissions', None)
+        return form
+
+
 class PanelUsuarioDeleteView(SoloAdminMixin, DeleteView):
     model = Usuario
+    panel_permission_attribute = "puede_eliminar_usuarios"
     template_name = 'usuarios/panel/confirmar_borrado.html'
     success_url = reverse_lazy('panel_usuarios_lista')
 

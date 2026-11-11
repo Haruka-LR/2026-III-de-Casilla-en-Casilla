@@ -6,8 +6,6 @@ import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(qc1=eedn+csoj)o5l(lm05(608&4y*n=efu@3tkfz5tq%=tbh'
 
@@ -15,9 +13,6 @@ SECRET_KEY = 'django-insecure-(qc1=eedn+csoj)o5l(lm05(608&4y*n=efu@3tkfz5tq%=tbh
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'usuarios',
+    'game',
 ]
 
 MIDDLEWARE = [
@@ -59,9 +55,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'De_Casilla_en_Casilla.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.1/ref/settings/#databases
-
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL'),
@@ -69,10 +62,6 @@ DATABASES = {
         conn_health_checks=True,
     )
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -90,9 +79,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.1/topics/i18n/
-
 LANGUAGE_CODE =  'es-mx'
 
 TIME_ZONE = 'UTC'
@@ -100,10 +86,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR.parent / 'static']
@@ -118,5 +100,5 @@ MAILERS = {
 }
 AUTH_USER_MODEL = 'usuarios.Usuario'
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'perfil_usuario'
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'               

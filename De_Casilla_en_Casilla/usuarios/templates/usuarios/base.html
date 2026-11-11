@@ -1,48 +1,33 @@
-{% load static %} 
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}De Casilla en Casilla{% endblock %}</title>
-    
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'usuarios/css/main.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>{% block title %}De Casilla en Casilla{% endblock %} · UTVAM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'game/css/global.css' %}">
+  <link rel="stylesheet" href="{% static 'game/css/account.css' %}">
+  {% block styles %}{% endblock %}
 </head>
 <body>
-    
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-
-            <a class="navbar-brand brand-title text-white fw-bold" href="#">De Casilla en Casilla</a>
-            <div class="d-flex align-items-center">
-                {% if request.user.is_authenticated %}
-
-                    <a href="{% url 'perfil_usuario' %}" class="text-white text-decoration-none me-3">
-                        👋 Hola, {{ request.user.username }}
-                    </a>
-                    {% if request.user.rol == 'admin' or request.user.rol == 'lectura' or request.user.rol == 'creador' or request.user.is_superuser %}
-                        <a href="{% url 'panel_usuarios_lista' %}" class="btn btn-warning btn-sm me-2">Panel de Control</a>
-                    {% endif %}
-                    
-                    <form method="post" action="{% url 'logout' %}" class="m-0">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
-                    </form>
-                    
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Entrar</a>
-                    <a href="{% url 'registro' %}" class="btn btn-primary btn-sm">Registrarse</a>
-                    
-                {% endif %}
-            </div>
-        </div>
-    </nav>
-    <div class="container">
-        {% block content %}
-        {% endblock %}
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  {% include 'usuarios/navigation.html' %}
+  <main class="page-content">
+    {% if messages %}
+      <div class="account-card glass-panel" role="status">
+        {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <p>Desarrollado por Ingeniería en Desarrollo y Gestión de Software</p>
+    <strong>UTVAM</strong>
+    <small>Universidad Tecnológica de la Zona Metropolitana del Valle de México · {% now "Y" %}</small>
+  </footer>
+  <script src="{% static 'usuarios/js/phone-input.js' %}" defer></script>
 </body>
 </html>
